@@ -1,11 +1,94 @@
-import Head from 'next/head';
-import Image from 'next/image';
+import GifGrid from '@/components/gif-grid';
+import { createGifAccount, getAccount } from '@/utils';
 
-import styles from '@/styles/Home.module.css';
+import classNames from 'classnames';
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
+
+declare global {
+  interface Window {
+    solana: any;
+  }
+}
 
 export default function Home() {
+  const [walletAddress, setWalletAddress] = useState(null);
+  const [isConnectingWallet, setIsConnectingWallet] = useState(false);
+
+  // check solana wallet connected
+  const checkIfWalletConnected = async () => {
+    try {
+      const { solana } = window;
+
+      if (solana) {
+        if (solana.isPhantom) {
+          console.log(`solana is phantom`);
+
+          const response = await solana.connect({ onlyIfTrusted: true });
+
+          setWalletAddress(response?.publicKey?.toString());
+        }
+      } else {
+        alert(`solana is not connected`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleConnectWallet = async () => {
+    try {
+      setIsConnectingWallet(true);
+      const { solana } = window;
+
+      if (solana) {
+        const response = await solana.connect();
+        console.log(`Connected with public key`, response.publicKey.toString());
+        setWalletAddress(response.publicKey.toString());
+      }
+    } catch (error) {
+      console.log(`error`, error);
+    } finally {
+      setIsConnectingWallet(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener(`load`, async () => {
+      await checkIfWalletConnected();
+    });
+  }, []);
+
+  const [gifList, setGifList] = useState<{ gifLink: string }[] | null>(null);
+
+  const getGiftList = async () => {
+    try {
+      console.log(`fetching gif list`);
+
+      const account = await getAccount();
+
+      console.log(`got account`, account);
+
+      setGifList(account.gifList);
+    } catch (error) {
+      console.log({ error });
+      setGifList(null);
+    }
+  };
+
+  useEffect(() => {
+    if (walletAddress) {
+      getGiftList();
+    }
+  }, [walletAddress]);
+
+  const handleCreateGifAccount = async () => {
+    await createGifAccount();
+    getGiftList();
+  };
+
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>TypeScript starter for Next.js</title>
         <meta
@@ -14,62 +97,38 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1 flex flex-col space-y-4 justify-center items-center">
+          <h1>Gif Explorer</h1>
+          {!walletAddress ? (
+            <button
+              className={classNames(`btn btn-primary`, {
+                loading: isConnectingWallet,
+              })}
+              onClick={() => handleConnectWallet()}
+            >
+              {isConnectingWallet ? `Connecting...` : `Connect Wallet`}
+            </button>
+          ) : null}
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+          {walletAddress ? <p>Connected to {walletAddress}</p> : null}
 
-        <p className={styles.description}>
-          Get started by editing{` `}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
+          {gifList === null ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => handleCreateGifAccount()}
+            >
+              Initiate GIF program account
+            </button>
+          ) : (
+            <GifGrid giftList={gifList} getGifList={getGiftList} />
+          )}
+        </main>
 
-        <p className={styles.description}>This is not an official starter!</p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=typescript-nextjs-starter"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=typescript-nextjs-starter"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{` `}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
+        <footer className="flex justify-center p-10">
+          <p className="">Made by Indra</p>
+        </footer>
+      </div>
+    </>
   );
 }
