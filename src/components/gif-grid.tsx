@@ -113,6 +113,10 @@ const GifGrid = ({
               <div className="border border-b-0 text-center">
                 <p>{gif?.gifDescription}</p>
               </div>
+              <div className="border border-b-0 flex flex-col text-center">
+                <p>User Address</p>
+                <p>{gif.userAddress?.toString()}</p>
+              </div>
               <button
                 className="flex items-center w-full border justify-center"
                 onClick={() => onLikeGif(index)}
