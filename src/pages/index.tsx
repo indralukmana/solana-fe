@@ -1,11 +1,12 @@
 import GifGrid from '@/components/gif-grid';
-import { createGifAccount, getAccount } from '@/utils';
+import { createGifAccount, getAccount, removeGif, sendLike } from '@/utils';
 import { FaTwitterSquare } from 'react-icons/fa';
 import { GiBrickWall } from 'react-icons/gi';
 
 import classNames from 'classnames';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import { GifItem } from 'types/GifItem';
 
 declare global {
   interface Window {
@@ -64,7 +65,7 @@ export default function Home() {
     });
   }, []);
 
-  const [gifList, setGifList] = useState<{ gifLink: string }[] | null>(null);
+  const [gifList, setGifList] = useState<GifItem[] | null>(null);
 
   const getGiftList = async () => {
     try {
@@ -89,6 +90,17 @@ export default function Home() {
 
   const handleCreateGifAccount = async () => {
     await createGifAccount();
+    getGiftList();
+  };
+
+  const handleRemoveGif = async (index: number) => {
+    await removeGif(index);
+    getGiftList();
+  };
+
+  const handleSendLikGif = async (index: number) => {
+    console.log({ index });
+    await sendLike(index);
     getGiftList();
   };
 
@@ -140,7 +152,12 @@ export default function Home() {
               Initiate GIF program account
             </button>
           ) : (
-            <GifGrid giftList={gifList} getGifList={getGiftList} />
+            <GifGrid
+              giftList={gifList}
+              getGifList={getGiftList}
+              onRemoveGif={handleRemoveGif}
+              onLikeGif={handleSendLikGif}
+            />
           )}
         </main>
 

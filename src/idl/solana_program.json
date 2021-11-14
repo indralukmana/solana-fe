@@ -36,6 +36,42 @@
         {
           "name": "gifLink",
           "type": "string"
+        },
+        {
+          "name": "gifDescription",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "likeGif",
+      "accounts": [
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gifIndex",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "removeGif",
+      "accounts": [
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "gifIndex",
+          "type": "u32"
         }
       ]
     }
@@ -48,7 +84,7 @@
         "fields": [
           {
             "name": "totalGifs",
-            "type": "u64"
+            "type": "u32"
           },
           {
             "name": "gifList",
@@ -73,6 +109,14 @@
             "type": "string"
           },
           {
+            "name": "gifDescription",
+            "type": "string"
+          },
+          {
+            "name": "gifLikes",
+            "type": "u32"
+          },
+          {
             "name": "userAddress",
             "type": "publicKey"
           }
@@ -81,6 +125,6 @@
     }
   ],
   "metadata": {
-    "address": "6H4RfCUM1ZBCuYSJDNgUMBGfGVmRN3snDhBjH5XhdyEo"
+    "address": "237Rj7tRNhHfBCfdsenMUQdRmZafHoWvZD45CYTnQ5cb"
   }
 }

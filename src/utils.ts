@@ -13,14 +13,14 @@ const { SystemProgram, Keypair } = web3;
 export const baseAccount = () => {
   const localStorageBaseAccount = localStorage.getItem(`baseAccount`);
 
-  console.log({ localStorageBaseAccount });
+  // console.log({ localStorageBaseAccount });
 
   if (localStorageBaseAccount) {
     const parsed = JSON.parse(localStorageBaseAccount);
     const arr = Object.values(parsed._keypair.secretKey) as any[];
     const secret = new Uint8Array(arr);
 
-    console.log({ parsed });
+    // console.log({ parsed });
     return Keypair.fromSecretKey(secret);
   } else {
     const generatedBaseAccount = Keypair.generate();
@@ -81,18 +81,20 @@ export const createGifAccount = async () => {
 
 export const sendGif = async ({
   gifUrl,
+  gifDescription,
   getGifList,
 }: {
   gifUrl: string;
+  gifDescription: string;
   getGifList: () => Promise<void>;
 }) => {
   try {
     const provider = getProvider();
     const program = new Program(idl as Idl, programId, provider);
 
-    console.log(`Gif link`, gifUrl);
+    console.log(`Gif link`, gifUrl, gifDescription);
 
-    await program.rpc.addGif(gifUrl, {
+    await program.rpc.addGif(gifUrl, gifDescription, {
       accounts: {
         baseAccount: baseAccount().publicKey,
         user: provider.wallet.publicKey,
@@ -102,6 +104,46 @@ export const sendGif = async ({
     console.log(`GIF successfully sent to program`, gifUrl);
 
     await getGifList();
+  } catch (error) {
+    console.log({ error });
+  }
+};
+
+export const removeGif = async (index: number) => {
+  try {
+    const provider = getProvider();
+    const program = new Program(idl as Idl, programId, provider);
+
+    console.log(`removing gif`);
+
+    await program.rpc.removeGif(index, {
+      accounts: {
+        baseAccount: baseAccount().publicKey,
+        user: provider.wallet.publicKey,
+      },
+    });
+
+    console.log(`deleted gif`);
+  } catch (error) {
+    console.log({ error });
+  }
+};
+
+export const sendLike = async (index: number) => {
+  try {
+    const provider = getProvider();
+    const program = new Program(idl as Idl, programId, provider);
+
+    console.log(`liking gif`);
+
+    console.log({ ff: program.rpc });
+
+    await program.rpc.likeGif(index, {
+      accounts: {
+        baseAccount: baseAccount().publicKey,
+        user: provider.wallet.publicKey,
+      },
+    });
   } catch (error) {
     console.log({ error });
   }
