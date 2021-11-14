@@ -1,5 +1,7 @@
 import GifGrid from '@/components/gif-grid';
 import { createGifAccount, getAccount } from '@/utils';
+import { FaTwitterSquare } from 'react-icons/fa';
+import { GiBrickWall } from 'react-icons/gi';
 
 import classNames from 'classnames';
 import Head from 'next/head';
@@ -20,13 +22,16 @@ export default function Home() {
     try {
       const { solana } = window;
 
-      if (solana) {
-        if (solana.isPhantom) {
-          console.log(`solana is phantom`);
+      if (solana?.isPhantom && typeof solana.connect === `function`) {
+        console.log(`solana is phantom`, { solana });
 
-          const response = await solana.connect({ onlyIfTrusted: true });
-
+        try {
+          console.log(`try`);
+          const response = await solana?.connect({ onlyIfTrusted: true });
+          console.log({ response });
           setWalletAddress(response?.publicKey?.toString());
+        } catch (error) {
+          console.log({ error });
         }
       } else {
         alert(`solana is not connected`);
@@ -90,16 +95,20 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>TypeScript starter for Next.js</title>
+        <title>Solana GIF Wall</title>
         <meta
           name="description"
-          content="TypeScript starter for Next.js that includes all you need to build amazing apps"
+          content="Solana GIF wall for Buildspace Project"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col p-4">
         <main className="flex-1 flex flex-col space-y-4 justify-center items-center">
-          <h1>Gif Explorer</h1>
+          <h1 className="text-lg font-bold flex items-center">
+            <GiBrickWall size={30} />
+            <span className="px-2">Solana GIF Wall</span>
+            <GiBrickWall size={30} />
+          </h1>
           {!walletAddress ? (
             <button
               className={classNames(`btn btn-primary`, {
@@ -111,7 +120,17 @@ export default function Home() {
             </button>
           ) : null}
 
-          {walletAddress ? <p>Connected to {walletAddress}</p> : null}
+          {walletAddress ? (
+            <div className="space-x-2  px-2 flex items-center">
+              <p className="flex-1">Connected to</p>
+              <p
+                style={{ width: `10ch` }}
+                className="bg-gray-400 border p-1 truncate ... "
+              >
+                {walletAddress}
+              </p>
+            </div>
+          ) : null}
 
           {gifList === null ? (
             <button
@@ -125,8 +144,14 @@ export default function Home() {
           )}
         </main>
 
-        <footer className="flex justify-center p-10">
-          <p className="">Made by Indra</p>
+        <footer className="flex justify-center ">
+          <a
+            href="https://twitter.com/indluk"
+            className="flex items-center space-x-2"
+          >
+            <p className="flex items-center ">Made by Indra</p>
+            <FaTwitterSquare />
+          </a>
         </footer>
       </div>
     </>

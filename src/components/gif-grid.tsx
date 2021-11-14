@@ -42,7 +42,7 @@ const GifGrid = ({
           Send Gif
         </button>
       </div>
-      <div className="p-8 grid grid-cols-4 gap-4">
+      <div className="py-2 md:py-8 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
         {giftList.map((gif, index) => {
           return (
             <div key={gif.gifLink + index} className="">
